@@ -34,7 +34,7 @@
 
         var self = this;
         var ticking = false;
-        var stop = false;
+        this.stop = false;
         this.lastPosition = 0;
         this.socketio = socketio;
 
@@ -63,6 +63,7 @@
             window.requestAnimationFrame(function () {
                 if (false === self.stop) {
                     self.Stop();
+
                     self.notify();
                 }
             });

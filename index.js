@@ -37,9 +37,10 @@ class Scrollio {
         self.sockets[socket.id].created = new Date().getTime();
         self.sockets[socket.id].totalH = 0;
 
-        self.notify("scroll.io.init", [socket.id]);
+        self.notify("scroll.io.init", [socket.id], self.currentPosition);
 
-        socket.on('disconnected', ()=> {
+        socket.on('disconnect', ()=> {
+            if(typeof self.sockets[socket.id]!="undefined") delete self.sockets[socket.io];
             debug("disconnect: " + socket.id);
         });
 
@@ -68,7 +69,6 @@ class Scrollio {
 
     notify(event, to, msg) {
         let self = this;
-
         to.forEach((k)=> {
             self.sockets[k].emit(event, msg);
         });
