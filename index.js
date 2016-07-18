@@ -12,6 +12,7 @@ class Scrollio {
         this.version = "1.0.0";
         this.sockets = {};
         this.currentPosition = 0;
+
         debug("crating instance of scroll.io");
 
         if (typeof socketio == "undefined") {
