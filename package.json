@@ -1,6 +1,6 @@
 {
   "name": "scroll.io",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Scroll page using socket.io (share you webpage)",
   "main": "app.js",
   "scripts": {
