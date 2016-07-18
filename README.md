@@ -9,7 +9,7 @@ Scroll.io use "debug" module with "scroll" namespace
 ## install 
 
 ```bash
-$ npm install scrollio
+$ npm install scroll.io
 ```
 
 ## Run examples

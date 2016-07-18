@@ -13,6 +13,8 @@ class Scrollio {
         this.sockets = {};
         this.currentPosition = 0;
 
+        this.jsFile = fs.readFileSync("./public/scroll.io.js");
+
         debug("crating instance of scroll.io");
 
         if (typeof socketio == "undefined") {
@@ -73,7 +75,7 @@ class Scrollio {
     }
 
     getJSFile() {
-        return fs.readFileSync("./public/scroll.io.js");
+        return this.jsFile;
     }
 
 
