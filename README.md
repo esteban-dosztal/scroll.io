@@ -1,6 +1,6 @@
 # scroll.io
 
-This module allow share the same document and events scroll between all connected users.
+This module allows to share the same document and events scroll between all connected users.
 
 ## install 
 
