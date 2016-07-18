@@ -2,6 +2,8 @@
 
 This module allows to share the same document and events scroll between all connected users.
 
+## Updates
+[2016/07/18] now support for ratio screen!.
 ## install 
 
 ```bash

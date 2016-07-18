@@ -4,9 +4,9 @@ const SocketIO = require('socket.io');
 const fs = require("fs");
 const debug = require("debug")("scrollio");
 
-class Scrollio{
+class Scrollio {
 
-    constructor(http, socketio){
+    constructor(http, socketio) {
         let self = this;
         this.http = http;
         this.version = "1.0.0";
@@ -14,57 +14,69 @@ class Scrollio{
         this.currentPosition = 0;
         debug("crating instance of scroll.io");
 
-        if(typeof socketio== "undefined"){
+        if (typeof socketio == "undefined") {
             this.socketio = SocketIO.listen(http, {path: '/socket.io'});
-        }else this.socketio = socketio;
+        } else this.socketio = socketio;
 
         this.injectJS();
 
-        this.socketio.on('connection',(socket)=>{
+        this.socketio.on('connection', (socket)=> {
             self.ioConnect(socket);
-        } );
+        });
 
 
     }
 
-    ioConnect(socket){
+    ioConnect(socket) {
 
         let self = this;
         self.sockets[socket.id] = socket;
         self.sockets[socket.id].created = new Date().getTime();
+        self.sockets[socket.id].totalH = 0;
 
         self.notify("scroll.io.init", [socket.id]);
 
-        socket.on('disconnected', ()=>{
-            debug("disconnect: "+ socket.id);
+        socket.on('disconnected', ()=> {
+            debug("disconnect: " + socket.id);
         });
 
 
+        socket.on('scroll.io.resize', (h)=> {
+            debug("resizing: " + socket.id + " " + h);
+            self.sockets[socket.id].totalH = h;
+        });
 
-        socket.on('scroll.io.scroll', (y)=>{
-            this.currentPosition= y;
+        socket.on('scroll.io.scroll', (y)=> {
+            this.currentPosition = y;
             let to = Object.keys(self.sockets);
-            to.splice(socket.id,1);
-            self.notify("move", to, y);
+            let currentH = self.sockets[socket.id].totalH;
+
+            to.splice(socket.id, 1);
+
+            to.forEach((s)=> {
+                let f = Math.floor((y * self.sockets[s].totalH) / currentH);
+                self.notify("move", [s], f);
+            })
+
         });
 
     }
 
 
-    notify(event, to, msg){
+    notify(event, to, msg) {
         let self = this;
 
-        to.forEach((k)=>{
+        to.forEach((k)=> {
             self.sockets[k].emit(event, msg);
         });
     }
 
-    getJSFile(){
+    getJSFile() {
         return fs.readFileSync("./public/scroll.io.js");
     }
 
 
-    injectJS(){
+    injectJS() {
 
         debug('attaching bind to scroll.io required');
 
@@ -74,7 +86,7 @@ class Scrollio{
 
 
         this.http.removeAllListeners('request');
-        this.http.on('request', (req, res) =>{
+        this.http.on('request', (req, res) => {
 
             if (req.url === url) {
                 debug('serve client source');
@@ -93,4 +105,4 @@ class Scrollio{
 }
 
 
-module.exports  = Scrollio;
+module.exports = Scrollio;

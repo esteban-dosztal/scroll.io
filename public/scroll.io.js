@@ -38,6 +38,12 @@
         this.lastPosition = 0;
         this.socketio = socketio;
 
+
+        self.addEvent(window, 'load', function () {
+            self.resize();
+        });
+
+
         socketio.on('move', function (y) {
             self.move(y);
         });
@@ -47,39 +53,78 @@
         });
 
 
-        window.addEventListener('scroll', function (e) {
-
-            var id = null;
-            if (!ticking) {
-                window.requestAnimationFrame(function () {
-                    if (false === stop) self.notify();
-                    stop = true;
-
-                    /* dont send all packages to server, filter by time */
-                    if (id == null) {
-                        id = setTimeout(function () {
-                            stop = false;
-                            id = null;
-                        }, 100);
-                    }
-                    ticking = false;
-                });
-            }
-            ticking = true;
+        self.addEvent(window, 'resize', function (e) {
+            self.resize();
         });
 
 
-    };
+        this.addEvent(window, 'scroll', function (e) {
 
+            window.requestAnimationFrame(function () {
+                if (false === self.stop) {
+                    self.Stop();
+                    self.notify();
+                }
+            });
+        });
+
+    }
+
+
+    scrollio.prototype.addEvent = function (object, type, callback) {
+        if (object == null || typeof(object) == 'undefined') return;
+        if (object.addEventListener) {
+            object.addEventListener(type, callback, false);
+        } else if (object.attachEvent) {
+            object.attachEvent("on" + type, callback);
+        } else {
+            object["on" + type] = callback;
+        }
+    }
+
+    scrollio.prototype.getHeight = function () {
+        var B = document.body,
+            H = document.documentElement,
+            height;
+
+        if (typeof document.height !== 'undefined') {
+            height = document.height;
+        } else {
+            height = Math.max(B.scrollHeight,
+                B.offsetHeight,
+                H.clientHeight,
+                H.scrollHeight,
+                H.offsetHeight);
+        }
+
+        return height;
+    }
 
     scrollio.prototype.notify = function () {
         this.socketio.emit('scroll.io.scroll', window.scrollY);
     }
 
+    scrollio.prototype.resize = function () {
+        var self = this;
+        this.socketio.emit('scroll.io.resize', self.getHeight());
+    }
+
+    scrollio.prototype.Stop = function () {
+        var self = this;
+        self.stop = true;
+        setTimeout(function () {
+            self.stop = false;
+        }, 50)
+
+    }
     scrollio.prototype.move = function (to) {
         var self = this;
 
-        if (self.lastPosition != to) window.scrollTo(0, to);
+        if (self.lastPosition != to) {
+            self.Stop();
+            window.scrollTo(0, to);
+        }
+
         self.lastPosition = to;
 
     }
